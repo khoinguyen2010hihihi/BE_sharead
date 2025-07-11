@@ -34,11 +34,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user',
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
+}, {
+  timestamps: true,
 })
 
 UserSchema.pre('save', async function(next) {

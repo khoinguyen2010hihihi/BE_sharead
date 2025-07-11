@@ -1,7 +1,6 @@
 import userService from '../services/user.service.js'
 import { OK, CREATED } from '../handler/success-response.js'
-import { AuthFailureError, ConflictRequestError, NotFoundError } from '../handler/error-response.js'
-import cloudinary from '../config/cloudinary.js'
+import { AuthFailureError, NotFoundError } from '../handler/error-response.js'
 
 class UserController {
   createUser = async (req, res) => {

@@ -8,7 +8,7 @@ import { handleValidation } from '../middlewares/validators/handleValidation.js'
 
 const router = express.Router()
 
-router.post('/', authMiddleware, createPostValidator, handleValidation,upload.single('image'), asyncHandler(postController.createPost))
+router.post('/', authMiddleware, createPostValidator, handleValidation, upload.single('image'), asyncHandler(postController.createPost))
 router.get('/', asyncHandler(postController.getAllPosts))
 router.get('/:id', asyncHandler(postController.getPostById))
 router.post('/:id/like', authMiddleware, asyncHandler(postController.likePost))

@@ -27,11 +27,10 @@ const postSchema = new mongoose.Schema({
     ref: 'Post',
     default: null
   },
-  createAt: {
-    type: Date,
-    default: Date.now
-  },
-})
+}, 
+  {
+    timestamps: true,
+  })
 
 const Post = mongoose.model("Post", postSchema)
 export default Post
