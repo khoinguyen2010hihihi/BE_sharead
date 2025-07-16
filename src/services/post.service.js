@@ -1,4 +1,6 @@
 import Post from "../models/post.model.js"
+import likeService from "./like.service.js"
+
 
 export class PostService {
   createPost = async(postData) => {
@@ -7,34 +9,30 @@ export class PostService {
     return post
   }
 
-  getPostById = async (postId) => {
+  getPostById = async (postId, currentUserId) => {
     const post = await Post.findById(postId)
       .populate('author', 'username avatar')
       .populate('repostFrom')
+      .lean()
     if (!post) throw new NotFoundError('Post not found')
+
+    post.likeCount = await likeService.countLikes(postId)
+    post.isLikedByCurrentUser = await likeService.isLikedByCurrentUser(postId, currentUserId)
     return post
   }
 
-  getAllPosts = async () => {
-    return await Post.find()
-      .populate("author", "username avatar")
-      .populate("repostFrom")
+  getAllPosts = async (currentUserId) => {
+    const posts = await Post.find()
+      .populate('author', 'username avatar')
+      .populate('repostFrom')
       .sort({ createdAt: -1 })
       .lean()
-  }
 
-  toggleLike = async (postId, userId) => {
-    const post = await Post.findById(postId)
-    if (!post) throw new NotFoundError('Post not found')
-
-    const hasLiked = post.likes.includes(userId)
-    if (hasLiked) {
-      post.likes.pull(userId)
-    } else {
-      post.likes.push(userId)
+    for (const post of posts) {
+      post.likeCount = await likeService.countLikes(post._id)
+      post.isLikedByCurrentUser = await likeService.isLikedByCurrentUser(post._id, currentUserId)
     }
-    await post.save()
-    return { post, liked: !hasLiked }
+    return posts
   }
 
   repostPost = async (postId, userId, caption = '') => {

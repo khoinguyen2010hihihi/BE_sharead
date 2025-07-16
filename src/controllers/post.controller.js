@@ -20,7 +20,7 @@ class PostController {
   }
 
   getAllPosts = async (req, res) => {
-    const posts = await postService.getAllPosts()
+    const posts = await postService.getAllPosts(req.user?._id)
     res.status(200).json(
       new OK({
         message: "Fetched all posts",
@@ -30,21 +30,10 @@ class PostController {
   }
 
   getPostById = async (req, res) => {
-    const post = await postService.getPostById(req.params.id)
+    const post = await postService.getPostById(req.params.id, req.user?._id)
     res.status(200).json(
       new OK({
         message: "Post detail",
-        metadata: post,
-      })
-    )
-  }
-
-  likePost = async (req, res) => {
-    const { post, liked } = await postService.toggleLike(req.params.id, req.user._id)
-
-    res.status(200).json(
-      new OK({
-        message: liked ? "Liked post" : "Unliked post",
         metadata: post,
       })
     )

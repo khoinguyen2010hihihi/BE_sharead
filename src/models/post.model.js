@@ -18,10 +18,6 @@ const postSchema = new mongoose.Schema({
     default: '',
     trim: true
   },
-  likes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
   repostFrom: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Post',
