@@ -16,7 +16,7 @@ class CommentController {
   }
 
   getCommentByPost = async (req, res) => {
-    const comments = await commentService.getCommentByPost(req.params.postId)
+    const comments = await commentService.getCommentByPost(req.params.postId, req.user?._id)
     res.status(200).json(new OK({
       message: 'Comments retrieved successfully',
       metadata: comments

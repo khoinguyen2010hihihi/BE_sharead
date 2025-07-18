@@ -1,4 +1,5 @@
 import Comment from "../models/comment.model.js"
+import commentLikeService from "./comment-like.service.js"
 
 class CommentService {
   createComment = async (commentData) => {
@@ -8,7 +9,16 @@ class CommentService {
   }
 
   getCommentByPost = async (postId) => {
-    return await Comment.find({ post: postId }).populate('user', 'username avatar').sort({ createdAt: -1 }).lean()
+    const comments = await Comment.find({ post: postId })
+      .populate('user', 'username avatar')
+      .sort({ createdAt: -1 })
+      .lean()
+
+    for (const comment of comments) {
+      comment.likeCount = await commentLikeService.countLikes(comment._id)
+      comment.isLikedByCurrentUser = await commentLikeService.isLikedByCurrentUser(comment._id, comment.user._id)
+    }
+    return comments
   }
 
   deleteComment = async (commentId, userId) => {
