@@ -8,7 +8,7 @@ class CommentService {
     return comment
   }
 
-  getCommentByPost = async (postId) => {
+  getCommentByPost = async (postId, userId) => {
     const comments = await Comment.find({ post: postId })
       .populate('user', 'username avatar')
       .sort({ createdAt: -1 })
@@ -16,8 +16,9 @@ class CommentService {
 
     for (const comment of comments) {
       comment.likeCount = await commentLikeService.countLikes(comment._id)
-      comment.comment_isLikedByCurrentUser = await commentLikeService.comment_isLikedByCurrentUser(comment._id, comment.user._id)
+      comment.comment_isLikedByCurrentUser = await commentLikeService.comment_isLikedByCurrentUser(comment._id, userId)
     }
+
     return comments
   }
 
