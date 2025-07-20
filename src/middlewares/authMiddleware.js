@@ -27,6 +27,38 @@ export const authMiddleware = async (req, res, next) => {
   next()
 }
 
+export const optionalAuthMiddleware = async (req, res, next) => {
+  const authHeader = req.headers.authorization
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    req.user = null
+    return next()
+  }
+
+  const token = authHeader.split(' ')[1]
+  let decoded
+
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET)
+  } catch (error) {
+    req.user = null
+    return next()
+  }
+
+  try {
+    const user = await User.findById(decoded.id).select('-password')
+    if (!user) {
+      req.user = null
+    } else {
+      req.user = user
+    }
+  } catch (err) {
+    return next(new AuthFailureError('Failed to retrieve user info'), 404)
+  }
+
+  next()
+}
+
 export const isAdmin = (req, res, next) => {
   if (req.user.role !== 'admin') {
     return next(new AuthFailureError('Access denied: Admins only', 403))

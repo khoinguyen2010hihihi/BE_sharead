@@ -16,7 +16,7 @@ class CommentService {
 
     for (const comment of comments) {
       comment.likeCount = await commentLikeService.countLikes(comment._id)
-      comment.isLikedByCurrentUser = await commentLikeService.isLikedByCurrentUser(comment._id, comment.user._id)
+      comment.comment_isLikedByCurrentUser = await commentLikeService.comment_isLikedByCurrentUser(comment._id, comment.user._id)
     }
     return comments
   }

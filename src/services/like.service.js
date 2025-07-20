@@ -28,7 +28,7 @@ export class LikeService {
       .lean()
   }
 
-  isLikedByCurrentUser = async (postId, userId) => {
+  post_isLikedByCurrentUser = async (postId, userId) => {
     if (!userId) return false
     const like = await Like.findOne({ post: postId, user: userId })
     return !!like

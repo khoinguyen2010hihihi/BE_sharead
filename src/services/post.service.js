@@ -17,7 +17,7 @@ export class PostService {
     if (!post) throw new NotFoundError('Post not found')
 
     post.likeCount = await likeService.countLikes(postId)
-    post.isLikedByCurrentUser = await likeService.isLikedByCurrentUser(postId, currentUserId)
+    post.post_isLikedByCurrentUser = await likeService.post_isLikedByCurrentUser(postId, currentUserId)
     return post
   }
 
