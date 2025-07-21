@@ -1,5 +1,5 @@
 import FriendRequest from "../models/friend-request.model.js"
-import { AuthFailureError, NotFoundError } from "../handler/error-response.js"
+import { AuthFailureError, NotFoundError, BadRequestError } from "../handler/error-response.js"
 
 class FriendRequestService {
   sendRequest = async (senderId, receiverId) => {
@@ -54,6 +54,20 @@ class FriendRequestService {
 
     await FriendRequest.deleteOne({ _id: requestId })
     return { message: 'Friend request cancelled successfully' }
+  }
+
+  unFriend = async (userId, friendId) => {
+    const friendRequest = await FriendRequest.findOne({ sender: userId, receiver: friendId })
+    if (!friendRequest) {
+      throw new NotFoundError('Friend request not found')
+    }
+
+    if (friendRequest.status !== 'accepted') {
+      throw new BadRequestError('Cannot unfriend a user who is not a friend')
+    }
+
+    await FriendRequest.deleteOne({ _id: friendRequest._id })
+    return { message: 'Unfriended successfully' }
   }
 }
 

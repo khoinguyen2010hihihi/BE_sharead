@@ -49,6 +49,16 @@ class FriendRequestController {
       metadata: request
     }))
   }
+
+  unFriend = async (req, res) => {
+    const { friendId } = req.params
+    const result = await friendRequestService.unFriend(req.user._id, friendId)
+
+    res.status(200).json(new OK({
+      message: 'Unfriended successfully',
+      metadata: result
+    }))
+  }
 }
 
 export default new FriendRequestController()
