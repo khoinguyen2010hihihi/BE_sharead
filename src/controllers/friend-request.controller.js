@@ -40,6 +40,15 @@ class FriendRequestController {
       metadata: requests
     }))
   }
+
+  cancelFriendRequest = async (req, res) => {
+    const { requestId } = req.params
+    const request = await friendRequestService.cancelRequest(requestId, req.user._id)
+    res.status(200).json(new OK({
+      message: 'Friend request cancelled successfully',
+      metadata: request
+    }))
+  }
 }
 
 export default new FriendRequestController()

@@ -1,5 +1,5 @@
 import FriendRequest from "../models/friend-request.model.js"
-import { NotFoundError } from "../handler/error-response.js"
+import { AuthFailureError, NotFoundError } from "../handler/error-response.js"
 
 class FriendRequestService {
   sendRequest = async (senderId, receiverId) => {
@@ -40,6 +40,20 @@ class FriendRequestService {
       throw new NotFoundError('No pending friend requests found')
     }
     return requests
+  }
+
+  cancelRequest = async (requestId, userId) => {
+    const request = await FriendRequest.findById(requestId)
+    if (!request) {
+      throw new NotFoundError('Friend request not found')
+    }
+
+    if (request.sender.toString() !== userId.toString()) {
+      throw new AuthFailureError('Unauthorized to cancel this request')
+    }
+
+    await FriendRequest.deleteOne({ _id: requestId })
+    return { message: 'Friend request cancelled successfully' }
   }
 }
 
