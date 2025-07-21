@@ -10,6 +10,7 @@ import postRouter from './routes/post.route.js'
 import commentRouter from './routes/comment.route.js'
 import likeRouter from './routes/like.route.js'
 import commentLikeRouter from './routes/comment-like.route.js'
+import friendRequestRouter from './routes/friend-request.route.js'
 
 dotenv.config()
 const app = express()
@@ -26,6 +27,7 @@ app.use('/post', postRouter)
 app.use('/comment', commentRouter)
 app.use('/like', likeRouter)
 app.use('/comment-like', commentLikeRouter)
+app.use('/friend', friendRequestRouter)
 
 app.use(errorHandler)
 

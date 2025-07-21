@@ -1,5 +1,6 @@
 import FriendRequest from "../models/friend-request.model.js"
 import { AuthFailureError, NotFoundError, BadRequestError } from "../handler/error-response.js"
+import mongoose from "mongoose"
 
 class FriendRequestService {
   sendRequest = async (senderId, receiverId) => {
@@ -71,13 +72,20 @@ class FriendRequestService {
   }
 
   unFriend = async (userId, friendId) => {
-    const friendRequest = await FriendRequest.findOne({ sender: userId, receiver: friendId })
+
+    const senderId = new mongoose.Types.ObjectId(userId)
+    const receiverId = new mongoose.Types.ObjectId(friendId)
+    
+    const friendRequest = await FriendRequest.findOne({
+      $or: [
+        { sender: senderId, receiver: receiverId },
+        { sender: receiverId, receiver: senderId }
+      ],
+      status: 'accepted'
+    })
+
     if (!friendRequest) {
       throw new NotFoundError('Friend request not found')
-    }
-
-    if (friendRequest.status !== 'accepted') {
-      throw new BadRequestError('Cannot unfriend a user who is not a friend')
     }
 
     await FriendRequest.deleteOne({ _id: friendRequest._id })

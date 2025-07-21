@@ -3,7 +3,7 @@ import { CREATED, OK } from '../handler/success-response.js'
 
 class FriendRequestController {
   sendFriendRequest = async (req, res) => {
-    const { receiver } = req.body
+    const { receiverId: receiver } = req.params
     const request = await friendRequestService.sendRequest(req.user._id, receiver)
 
     res.status(201).json(new CREATED({
