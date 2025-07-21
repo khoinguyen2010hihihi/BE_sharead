@@ -33,6 +33,14 @@ class FriendRequestService {
     await request.save()
     return request
   }
+
+  getRequestsByUser = async (userId) => {
+    const requests = await FriendRequest.find({ receiver: userId, status: 'pending '})
+    if (!requests.length) {
+      throw new NotFoundError('No pending friend requests found')
+    }
+    return requests
+  }
 }
 
 export default new FriendRequestService()
