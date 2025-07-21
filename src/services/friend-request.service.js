@@ -69,6 +69,24 @@ class FriendRequestService {
     await FriendRequest.deleteOne({ _id: friendRequest._id })
     return { message: 'Unfriended successfully' }
   }
+
+  getFriendList = async (userId) => {
+    const requests = await FriendRequest.find({
+      $or: [
+        { sender: userId, status: 'accepted' },
+        { receiver: userId, status: 'accepted' }
+      ]
+    }).populate('sender receiver', 'username avatar')
+
+    if (!requests.length) {
+      throw new NotFoundError('No friends found')
+    }
+
+    return requests.map(request => ({
+      friend: request.sender._id.toString() === userId ? request.receiver : request.sender,
+      status: request.status
+    }))
+  }
 }
 
 export default new FriendRequestService()

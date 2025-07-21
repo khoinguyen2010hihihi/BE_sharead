@@ -59,6 +59,15 @@ class FriendRequestController {
       metadata: result
     }))
   }
+
+  getListOfFriends = async (req, res) => {
+    const friends = await friendRequestService.getFriendList(req.user._id)
+
+    res.status(200).json(new OK({
+      message: 'List of friends retrieved successfully',
+      metadata: friends
+    }))
+  }
 }
 
 export default new FriendRequestController()
