@@ -32,11 +32,18 @@ class FriendRequestController {
     }))
   }
 
-  getPendingRequests = async (req, res) => {
-    const requests = await friendRequestService.getRequestsByUser(req.user._id)
-
+  getReceiverRequests = async (req, res) => {
+    const requests = await friendRequestService.getReceiverRequests(req.user._id)
     res.status(200).json(new OK({
-      message: 'Pending friend requests retrieved successfully',
+      message: 'Receiver friend requests retrieved successfully',
+      metadata: requests
+    }))
+  }
+
+  getSenderRequests = async (req, res) => {
+    const requests = await friendRequestService.getSenderRequests(req.user._id)
+    res.status(200).json(new OK({
+      message: 'Sender friend requests retrieved successfully',
       metadata: requests
     }))
   }

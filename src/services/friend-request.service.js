@@ -34,8 +34,22 @@ class FriendRequestService {
     return request
   }
 
-  getRequestsByUser = async (userId) => {
-    const requests = await FriendRequest.find({ receiver: userId, status: 'pending '})
+  getReceiverRequests = async (userId) => {
+    const requests = await FriendRequest.find({ 
+      receiver: userId, status: 'pending' 
+    }).populate('sender', 'username avatar')
+
+    if (!requests.length) {
+      throw new NotFoundError('No pending friend requests found')
+    }
+    return requests
+  }
+
+  getSenderRequests = async (userId) => {
+    const requests = await FriendRequest.find({
+      sender: userId, status: 'pending'
+    }).populate('receiver', 'username avatar')
+
     if (!requests.length) {
       throw new NotFoundError('No pending friend requests found')
     }
