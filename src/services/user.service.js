@@ -13,11 +13,7 @@ class UserService {
   }
 
   async getUserById(userId) {
-    return await User.findById(userId).select("-password")
-  }
-
-  async getUserByEmail(email) {
-    return await User.findOne({ email }).select("-password")
+    return await User.findById(userId).select("-password").select("-role")
   }
 
   async updateUser(userId, updateData) {
