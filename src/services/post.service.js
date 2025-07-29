@@ -30,7 +30,7 @@ export class PostService {
 
     for (const post of posts) {
       post.likeCount = await likeService.countLikes(post._id)
-      post.isLikedByCurrentUser = await likeService.isLikedByCurrentUser(post._id, currentUserId)
+      post.post_isLikedByCurrentUser = await likeService.post_isLikedByCurrentUser(post._id, currentUserId)
     }
     return posts
   }

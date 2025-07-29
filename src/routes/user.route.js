@@ -12,7 +12,7 @@ router.put('/updateAvatar', authMiddleware, upload.single('avatar'), asyncHandle
 router.get('/profile/me', authMiddleware, asyncHandler(userController.getMe))
 router.get('/getAll', authMiddleware, isAdmin, asyncHandler(userController.getAllUsers))
 router.get('/search', optionalAuthMiddleware, asyncHandler(userController.searchUsers))
-router.get('/profile/:username', optionalAuthMiddleware, asyncHandler(userController.getProfileByUsername))
+router.get('/profile/:id', optionalAuthMiddleware, asyncHandler(userController.getUserProfile))
 router.get('/:id', optionalAuthMiddleware, asyncHandler(userController.getUser))
 router.put('/:id', authMiddleware, isAdmin, asyncHandler(userController.updateUser))
 router.delete('/:id', authMiddleware, isAdmin, asyncHandler(userController.deleteUser))

@@ -56,10 +56,6 @@ class UserService {
       }
     }).select("-password").select("-role")
   }
-
-  getProfileByUsername = async (username) => {
-    const 
-  }
 }
 
 export default new UserService()
