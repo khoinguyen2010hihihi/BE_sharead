@@ -47,6 +47,19 @@ class UserService {
   async updateAvatar(userId, avatarUrl) {
     return await User.findByIdAndUpdate(userId, { avatar: avatarUrl }, { new: true }).select("-password")
   }
+
+  async searchUsers(query) {
+    return await User.find({
+      username: {
+        $regex: query,
+        $options: 'i'
+      }
+    }).select("-password").select("-role")
+  }
+
+  getProfileByUsername = async (username) => {
+    const 
+  }
 }
 
 export default new UserService()

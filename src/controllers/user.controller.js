@@ -87,6 +87,24 @@ class UserController {
       metadata: user
     }))
   }
+
+  searchUsers = async (req, res) => {
+    const query = req.query.query
+    if (!query) {
+      return res.status(400).json(new AuthFailureError('Query parameter is required', 'Failed to search users'))
+    }
+
+    const users = await userService.searchUsers(query)
+    if (users.length === 0) {
+      return res.status(404).json(new NotFoundError('No users found', 'Failed to search users'))
+    }
+    res.status(200).json(new OK({
+      message: 'Users retrieved successfully',
+      metadata: users
+    }))
+  }
+
+  
 }
 
 export default new UserController()
