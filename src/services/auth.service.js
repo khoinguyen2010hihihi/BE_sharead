@@ -2,6 +2,8 @@ import { ConflictRequestError, NotFoundError } from "../handler/error-response.j
 import User from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 import mailer from '../config/mailer.config.js'
+import OtpRequest from "../models/otp-request.model.js"
+import bcrypt from 'bcrypt'
 
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_ACCESS_EXPIRES = '1h'
@@ -69,20 +71,25 @@ class AuthService {
   }
 
   sendOtp = async (email) => {
+    const user = await User.findOne({ email })
+    if (!user) {
+      throw new NotFoundError("User not found")
+    }
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
     const otpExpire = Date.now() + 10 * 60 * 1000
-    
-    const user = await User.findOneAndUpdate(
-      { email },
-      {
-        otpCode: otp,
-        otpExpire: otpExpire
-      },
-      { new: true }
-    )
-    if (!user) {
-      throw new NotFoundError("User not found with this email")
-    }
+
+    // *** CLEAN OTP REQUESTS ***
+    await OtpRequest.deleteMany({ email, used: false })
+    // *** ------------------ ***
+
+    await OtpRequest.create({
+      email: user.email,
+      otpCode: otp,
+      otpExpire: otpExpire,
+      used: false,
+      type: 'forgot_password'
+    })
 
     await mailer.sendMail({
       from: process.env.SMTP_USER,
@@ -95,20 +102,21 @@ class AuthService {
   }
 
   verifyOtp = async (email, otp) => {
-    const user = await User.findOne({ email })
-    if (!user) {
-      throw new NotFoundError("User not found")
+    const otpEntry = await OtpRequest.findOne({
+      email,
+      otpCode: otp,
+      used: false,
+      otpExpire: { $gt: new Date() },
+      type: 'forgot_password'
+    })
+
+    if (!otpEntry) {
+      throw new ConflictRequestError("Invalid or expired OTP")
     }
-    if (Date.now() > user.otpExpire) {
-      throw new ConflictRequestError("OTP expired")
-    }
-    if (user.otpCode !== otp.toString()) {
-      console.error("[ERROR] Invalid OTP:", otp, "for user otp:", user.otpCode)
-      throw new ConflictRequestError("Invalid OTP")
-    }
-    user.otpCode = undefined
-    user.otpExpire = undefined
-    await user.save()
+
+    otpEntry.used = true
+    await otpEntry.save()
+
     return { message: "OTP verified successfully" }
   }
 
@@ -120,6 +128,7 @@ class AuthService {
     const hashedPassword = await bcrypt.hash(newPassword, 10)
     user.password = hashedPassword
     await user.save()
+
     return { message: "Password reset successfully" }
   }
 }

@@ -29,4 +29,5 @@ const OtpRequestSchema = new mongoose.Schema({
   timestamps: true,
 })
 
-export default mongoose.model("OtpRequest", OtpRequestSchema)
+const OtpRequest = mongoose.model("OtpRequest", OtpRequestSchema)
+export default OtpRequest
