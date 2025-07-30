@@ -70,12 +70,13 @@ class AuthService {
 
   sendOtp = async (email) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const otpExpire = Date.now() + 10 * 60 * 1000
     
     const user = await User.findOneAndUpdate(
       { email },
       {
         otpCode: otp,
-        otpExpire: Date.now() + 10 * 60 * 1000
+        otpExpire: otpExpire
       },
       { new: true }
     )
@@ -90,7 +91,7 @@ class AuthService {
       text: `Your OTP code is ${otp}. It is valid for 10 minutes.`
     })
 
-    return { message: "OTP sent to email" }
+    return { message: "OTP sent to email", otpExpire }
   }
 
   verifyOtp = async (email, otp) => {
@@ -101,7 +102,8 @@ class AuthService {
     if (Date.now() > user.otpExpire) {
       throw new ConflictRequestError("OTP expired")
     }
-    if (user.otpCode !== otp) {
+    if (user.otpCode !== otp.toString()) {
+      console.error("[ERROR] Invalid OTP:", otp, "for user otp:", user.otpCode)
       throw new ConflictRequestError("Invalid OTP")
     }
     user.otpCode = undefined

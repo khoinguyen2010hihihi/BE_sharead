@@ -10,5 +10,8 @@ router.post('/register', registerValidator, handleValidation, asyncHandler(authC
 router.post('/login', loginValidator, handleValidation, asyncHandler(authController.login))
 router.post('/refresh-token', asyncHandler(authController.refreshToken))
 router.post('/logout', asyncHandler(authController.logout))
+router.post('/send-otp', asyncHandler(authController.sendOtp))
+router.post('/verify-otp', asyncHandler(authController.verifyOtp))
+router.post('/reset-password', asyncHandler(authController.resetPassword))
 
 export default router

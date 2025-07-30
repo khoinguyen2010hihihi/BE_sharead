@@ -66,6 +66,33 @@ class AuthController {
       metadata: {}
     }))
   }
+
+  sendOtp = async (req, res) => {
+    const { email } = req.body
+    const result = await authService.sendOtp(email)
+    res.status(200).json(new OK({
+      message: "OTP sent successfully",
+      metadata: {
+        otpExpire: result.otpExpire
+      }
+    }))
+  }
+
+  verifyOtp = async (req, res) => {
+    const { email, otp } = req.body
+    await authService.verifyOtp(email, otp)
+    res.status(200).json(new OK({
+      message: "OTP verified successfully"
+    }))
+  }
+
+  resetPassword = async (req, res) => {
+    const { email, newPassword } = req.body
+    await authService.resetPassword(email, newPassword)
+    res.status(200).json(new OK({
+      message: "Password reset successfully"
+    }))
+  }
 }
 
 export default new AuthController()
