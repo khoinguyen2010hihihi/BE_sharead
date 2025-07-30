@@ -2,7 +2,7 @@ import { ConflictRequestError, NotFoundError } from "../handler/error-response.j
 import User from "../models/user.model.js"
 
 class UserService {
-  async createUser(userData) {
+  createUser = async (userData) => {
     const existingUser = await User.findOne({ email: userData.email })
     if (existingUser) {
       throw new ConflictRequestError("User already exists with this email")
@@ -12,11 +12,11 @@ class UserService {
     return user
   }
 
-  async getUserById(userId) {
+  getUserById = async (userId) => {
     return await User.findById(userId).select("-password").select("-role")
   }
 
-  async updateUser(userId, updateData) {
+  updateUser = async (userId, updateData) => {
     delete updateData.role
 
     if (updateData.password) {
@@ -36,19 +36,19 @@ class UserService {
     }
   }
 
-  async deleteUser(userId) {
+  deleteUser = async (userId) => {
     return await User.findByIdAndDelete(userId)
   }
 
-  async getAllUsers() {
+  getAllUsers = async () => {
     return await User.find().select("-password")
   }
 
-  async updateAvatar(userId, avatarUrl) {
+  updateAvatar = async (userId, avatarUrl) => {
     return await User.findByIdAndUpdate(userId, { avatar: avatarUrl }, { new: true }).select("-password")
   }
 
-  async searchUsers(query) {
+  searchUsers = async (query) => {
     return await User.find({
       username: {
         $regex: query,
