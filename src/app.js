@@ -11,6 +11,7 @@ import commentRouter from './routes/comment.route.js'
 import likeRouter from './routes/like.route.js'
 import commentLikeRouter from './routes/comment-like.route.js'
 import friendRequestRouter from './routes/friend-request.route.js'
+import cors from "cors"
 
 dotenv.config()
 const app = express()
@@ -20,6 +21,11 @@ app.use(express.json())
 app.use(cookieParser())
 
 instanceMongoDB
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}))
 
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
