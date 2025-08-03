@@ -125,8 +125,7 @@ class AuthService {
     if (!user) {
       throw new NotFoundError("User not found")
     }
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
-    user.password = hashedPassword
+    user.password = newPassword
     await user.save()
 
     return { message: "Password reset successfully" }
