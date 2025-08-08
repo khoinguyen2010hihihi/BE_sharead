@@ -1,7 +1,6 @@
 import Post from "../models/post.model.js"
 import likeService from "./like.service.js"
 
-
 export class PostService {
   createPost = async(postData) => {
     const post = new Post(postData)
