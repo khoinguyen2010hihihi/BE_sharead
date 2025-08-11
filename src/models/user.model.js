@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    default: '/img/avt_default.avif',
+    default: './img/avt_default.avif',
   },
   bio: {
     type: String,
