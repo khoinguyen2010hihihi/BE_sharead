@@ -18,7 +18,7 @@ class AuthController {
     const result = await authService.login(email, password)
     res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       sameSite: "Strict",
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
