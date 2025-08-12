@@ -16,7 +16,7 @@ class AuthController {
   login = async (req, res) => {
     const { email, password } = req.body
     const result = await authService.login(email, password)
-    res.cookie("refreshToken", result.refreshToken, {
+    res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "Strict",
@@ -33,13 +33,13 @@ class AuthController {
   }
 
   refreshToken = async (req, res) => {
-    const token = req.cookies.refreshToken
+    const token = req.cookies.accessToken
     if (!token) {
-      throw new AuthFailureError("Refresh token is required", 401)
+      throw new AuthFailureError("Access token is required", 401)
     }
 
     const result = await authService.refreshToken(token)
-    res.cookie("refreshToken", result.refreshToken, {
+    res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
       secure: false,
       sameSite: "Strict",
@@ -56,7 +56,7 @@ class AuthController {
   }
 
   logout = async (req, res) => {
-    res.clearCookie("refreshToken", {
+    res.clearCookie("accessToken", {
       httpOnly: true,
       secure: false,
       sameSite: "Strict"
