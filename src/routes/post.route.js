@@ -12,5 +12,6 @@ router.post('/', authMiddleware, createPostValidator, handleValidation, upload.s
 router.get('/', optionalAuthMiddleware, asyncHandler(postController.getAllPosts))
 router.get('/:id', optionalAuthMiddleware, asyncHandler(postController.getPostById))
 router.post('/:id/repost', authMiddleware, asyncHandler(postController.repostPost))
+router.get('/user/:id', optionalAuthMiddleware, asyncHandler(postController.getPostsByUserId))
 
 export default router
