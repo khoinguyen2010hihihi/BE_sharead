@@ -34,6 +34,20 @@ export class PostService {
     return posts
   }
 
+  getPostByUserId = async (userId) => {
+    const posts = await Post.find({ author: userId })
+    .populate('author', 'username avatar')
+    .populate('repostFrom')
+    .sort({ createdAt: -1 })
+    .lean()
+
+    for (const post of posts) {
+      post.likeCount = await likeService.countLikes(post._id)
+      post.post_isLikedByCurrentUser = false
+    }
+    return posts
+  }
+
   repostPost = async (postId, userId, caption = '') => {
     const post = await Post.findById(postId)
     if (!post) throw new NotFoundError('Post not found')
