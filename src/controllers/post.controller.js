@@ -39,6 +39,16 @@ class PostController {
     )
   }
 
+  getPostsByUserId = async (req, res) => {
+    const posts = await postService.getPostByUserId(req.params.id)
+    res.status(200).json(
+      new OK({
+        message: "User posts",
+        metadata: posts,
+      })
+    )
+  }
+
   repostPost = async (req, res) => {
     const caption = req.body.content || ""
     const repost = await postService.repostPost(
