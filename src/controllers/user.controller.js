@@ -105,23 +105,6 @@ class UserController {
       metadata: users
     }))
   }
-
-  getUserProfile = async (req, res) => {
-    const userId = req.params.id
-    const user = await userService.getUserById(userId)
-    if (!user) {
-      return res.status(404).json(new NotFoundError('User not found', 'Failed to retrieve user profile'))
-    }
-
-    const posts = await postService.getAllPosts(userId)
-    if (!posts) {
-      return res.status(404).json(new NotFoundError('Posts not found', 'Failed to retrieve user posts'))
-    }
-    res.status(200).json(new OK({
-      message: 'User profile retrieved successfully',
-      metadata: { user, posts }
-    }))
-  }
 }
 
 export default new UserController()
