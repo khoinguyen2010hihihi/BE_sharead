@@ -12,6 +12,15 @@ class FriendRequestController {
     }))
   }
 
+  getStatus = async (req, res) => {
+    const { otherUserId } = req.params;
+    const result = await friendRequestService.getStatus(req.user._id, otherUserId);
+    res.status(200).json(new OK({
+      message: 'Friend request status retrieved successfully',
+      metadata: result
+    }));
+  }
+
   acceptFriendRequest = async (req, res) => {
     const { requestId } = req.params
     const request = await friendRequestService.acceptRequest(requestId)
@@ -24,11 +33,10 @@ class FriendRequestController {
 
   rejectFriendRequest = async (req, res) => {
     const { requestId } = req.params
-    const request = await friendRequestService.rejectRequest(requestId)
+    await friendRequestService.rejectRequest(requestId)
 
     res.status(200).json(new OK({
-      message: 'Friend request rejected successfully',
-      metadata: request
+      message: 'Friend request rejected successfully'
     }))
   }
 
