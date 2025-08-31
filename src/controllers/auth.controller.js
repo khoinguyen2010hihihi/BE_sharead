@@ -13,6 +13,27 @@ class AuthController {
     }))
   }
 
+    oauthCallback = async (req, res) => {
+      const user = req.user;
+
+      const result = await authService._createToken(user);
+
+      res.cookie("accessToken", result.accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
+      res.status(200).json(new OK({
+        message: "OAuth2 login successful",
+        metadata: {
+          accessToken: result.accessToken,
+          user: result.user
+        }
+      }));
+    }
+
   login = async (req, res) => {
     const { email, password } = req.body
     const result = await authService.login(email, password)
