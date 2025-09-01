@@ -11,6 +11,7 @@ import commentRouter from './routes/comment.route.js'
 import likeRouter from './routes/like.route.js'
 import commentLikeRouter from './routes/comment-like.route.js'
 import friendRequestRouter from './routes/friend-request.route.js'
+import passport from "./config/passport.config.js"
 import cors from "cors"
 
 dotenv.config()
@@ -27,6 +28,7 @@ app.use(cors({
   credentials: true
 }))
 
+app.use(passport.initialize())
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
 app.use('/post', postRouter)
