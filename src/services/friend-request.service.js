@@ -14,6 +14,19 @@ class FriendRequestService {
     return newRequest
   }
 
+  getStatus = async (userId, otherUserId) => {
+    const request = await FriendRequest.findOne({
+      $or: [
+        { sender: userId, receiver: otherUserId },
+        { sender: otherUserId, receiver: userId }
+      ]
+    })
+    if (!request) {
+      return { status: 'none', requestId: null, sender: null, receiver: null }
+    }
+    return { status: request.status, requestId: request._id, sender: request.sender, receiver: request.receiver }
+  }
+
   acceptRequest = async (requestId) => {
     const request = await FriendRequest.findById(requestId)
     if (!request) {
@@ -30,9 +43,8 @@ class FriendRequestService {
     if (!request) {
       throw new NotFoundError('Friend request not found')
     }
-    request.status = 'rejected'
-    await request.save()
-    return request
+    await request.deleteOne()
+    return { message: 'Friend request deleted' }
   }
 
   getReceiverRequests = async (userId) => {
