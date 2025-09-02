@@ -52,8 +52,9 @@ class FriendRequestService {
       receiver: userId, status: 'pending' 
     }).populate('sender', 'username avatar')
 
-    if (!requests.length) {
-      throw new NotFoundError('No pending friend requests found')
+    // Return empty array instead of throwing an error when no pending requests
+    if (!requests || !requests.length) {
+      return []
     }
     return requests
   }
@@ -63,8 +64,8 @@ class FriendRequestService {
       sender: userId, status: 'pending'
     }).populate('receiver', 'username avatar')
 
-    if (!requests.length) {
-      throw new NotFoundError('No pending friend requests found')
+    if (!requests || !requests.length) {
+      return []
     }
     return requests
   }
@@ -104,6 +105,30 @@ class FriendRequestService {
     return { message: 'Unfriended successfully' }
   }
 
+  /**
+   * Get list of users who sent friend requests to this user and were accepted.
+   * Returns array of objects: { friend: User, status: String }
+   * If none found, returns [] (not an error).
+   */
+  getIncomingFriendList = async (userId) => {
+    const requests = await FriendRequest.find({
+      receiver: userId,
+      status: 'accepted'
+    }).populate('sender', 'username avatar')
+
+    if (!requests || !requests.length) {
+      return []
+    }
+
+    return requests.map(request => ({
+      friend: request.sender,
+      status: request.status
+    }))
+  }
+
+  /**
+   * Get friend list for user (both directions). Returns [] if none.
+   */
   getFriendList = async (userId) => {
     const requests = await FriendRequest.find({
       $or: [
@@ -112,8 +137,8 @@ class FriendRequestService {
       ]
     }).populate('sender receiver', 'username avatar')
 
-    if (!requests.length) {
-      throw new NotFoundError('No friends found')
+    if (!requests || !requests.length) {
+      return []
     }
 
     return requests.map(request => ({

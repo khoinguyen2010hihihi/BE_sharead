@@ -1,6 +1,5 @@
+// src/controllers/user.controller.js
 import userService from '../services/user.service.js'
-import postService from '../services/post.service.js'
-import likeService from '../services/like.service.js'
 import { OK, CREATED } from '../handler/success-response.js'
 import { AuthFailureError, NotFoundError } from '../handler/error-response.js'
 
@@ -16,7 +15,7 @@ class UserController {
   getUser = async (req, res) => {
     const user = await userService.getUserById(req.params.id)
     if (!user) {
-      return res.status(404).json(new NotFoundError('User not found', 'Failed to retrieve user'))
+      return res.status(404).json(new NotFoundError('User not found'))
     }
     res.status(200).json(new OK({
       message: 'User retrieved successfully',
@@ -35,7 +34,7 @@ class UserController {
   updateUser = async (req, res) => {
     const user = await userService.updateUser(req.params.id, req.body)
     if (!user) {
-      return res.status(404).json(new NotFoundError('User not found', 'Failed to update user'))
+      return res.status(404).json(new NotFoundError('User not found'))
     }
     res.status(200).json(new OK({
       message: 'User updated successfully',
@@ -46,7 +45,7 @@ class UserController {
   deleteUser = async (req, res) => {
     const user = await userService.deleteUser(req.params.id)
     if (!user) {
-      return res.status(404).json(new NotFoundError('User not found', 'Failed to delete user'))
+      return res.status(404).json(new NotFoundError('User not found'))
     }
     res.status(200).json(new OK({
       message: 'User deleted successfully',
@@ -55,55 +54,63 @@ class UserController {
   }
 
   getMe = async (req, res) => {
-    const user = req.user
-
+    if (!req.user) {
+      return res.status(401).json(new AuthFailureError('Not authenticated'))
+    }
     res.status(200).json(new OK({
       message: 'User retrieved successfully',
-      metadata: user
+      metadata: req.user
     }))
   }
 
   updateMe = async (req, res) => {
-    const updatedUser = await userService.updateUser(req.user._id, req.body)
-
-    if (!updatedUser) {
-      return res.status(404).json(new NotFoundError('User not found', 'Failed to update user'))
+    if (!req.user) {
+      return res.status(401).json(new AuthFailureError('Not authenticated'))
     }
-
+    const updatedUser = await userService.updateUser(req.user._id, req.body)
     res.status(200).json(new OK({
       message: 'Profile updated successfully',
       metadata: updatedUser
     }))
   }
 
-  updateAvatar = async(req, res) => {
-    if (!req.file) {
-      return res.status(400).json(new AuthFailureError('No file uploaded', 'Failed to update avatar'))
+  updateAvatar = async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json(new AuthFailureError('Not authenticated'))
     }
-
+    if (!req.file) {
+      return res.status(400).json(new AuthFailureError('No file uploaded'))
+    }
     const imgUrl = req.file.path
     const user = await userService.updateAvatar(req.user._id, imgUrl)
-
     res.status(200).json(new OK({
       message: 'Avatar updated successfully!',
       metadata: user
     }))
   }
 
+  // Search users — giữ tên method là searchUsers để khớp router
   searchUsers = async (req, res) => {
-    const query = req.query.query
-    if (!query) {
-      return res.status(400).json(new AuthFailureError('Query parameter is required', 'Failed to search users'))
-    }
+    try {
+      // chấp nhận nhiều param tên khác nhau từ front-end
+      const raw = req.query.q ?? req.query.query ?? req.query.keyword ?? req.query.email ?? req.query.gmail ?? req.query.name ?? req.query.username
+      const query = (raw || '').toString().trim()
 
-    const users = await userService.searchUsers(query)
-    if (users.length === 0) {
-      return res.status(404).json(new NotFoundError('No users found', 'Failed to search users'))
+      if (!query) {
+        return res.status(400).json(new AuthFailureError('Query parameter is required'))
+      }
+
+      const currentUserId = req.user?._id || null
+      const users = await userService.searchUsers(query, currentUserId)
+
+      res.status(200).json(new OK({
+        message: 'Users retrieved successfully',
+        metadata: users
+      }))
+    } catch (error) {
+      console.error('Search failed:', error)
+      res.status(500).json(new AuthFailureError('Search failed'))
     }
-    res.status(200).json(new OK({
-      message: 'Users retrieved successfully',
-      metadata: users
-    }))
   }
 }
 

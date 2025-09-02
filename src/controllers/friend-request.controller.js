@@ -75,6 +75,18 @@ class FriendRequestController {
     }))
   }
 
+  /**
+   * Return list of users who sent friend requests that are accepted (incoming accepted friends)
+   */
+  getIncomingFriends = async (req, res) => {
+    const incoming = await friendRequestService.getIncomingFriendList(req.user._id)
+
+    res.status(200).json(new OK({
+      message: 'List of incoming friends retrieved successfully',
+      metadata: incoming
+    }))
+  }
+
   getListOfFriends = async (req, res) => {
     const friends = await friendRequestService.getFriendList(req.user._id)
 

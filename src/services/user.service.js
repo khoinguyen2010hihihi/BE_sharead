@@ -1,7 +1,9 @@
+// src/services/user.service.js
 import { ConflictRequestError, NotFoundError } from "../handler/error-response.js"
 import User from "../models/user.model.js"
 
 class UserService {
+  // Tạo user mới
   createUser = async (userData) => {
     const existingUser = await User.findOne({ email: userData.email })
     if (existingUser) {
@@ -12,49 +14,83 @@ class UserService {
     return user
   }
 
+  // Lấy user theo id
   getUserById = async (userId) => {
-    return await User.findById(userId).select("-password").select("-role")
+    return await User.findById(userId).select("-password -role")
   }
 
+  // Update user (admin)
   updateUser = async (userId, updateData) => {
-    delete updateData.role
+    delete updateData.role // Không cho update role từ client
 
-    if (updateData.password) {
-      const existingUser = await User.findById(userId)
-      if (!existingUser) {
-        throw new NotFoundError("User not found")
-      }
-      existingUser.username = updateData.username || existingUser.username
-      existingUser.email = updateData.email || existingUser.email
-      existingUser.password = updateData.password || existingUser.password
-      existingUser.avatar = updateData.avatar || existingUser.avatar
-      existingUser.bio = updateData.bio || existingUser.bio
-      await existingUser.save()
-      return existingUser
-    } else {
-      return User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select("-password")
+    const existingUser = await User.findById(userId)
+    if (!existingUser) {
+      throw new NotFoundError("User not found")
     }
+
+    // Nếu có password mới → gán lại
+    if (updateData.password) {
+      existingUser.password = updateData.password
+    }
+
+    // Update các field khác (giữ các field bạn đã dùng)
+    existingUser.username = updateData.username || existingUser.username
+    existingUser.email = updateData.email || existingUser.email
+    existingUser.avatar = updateData.avatar || existingUser.avatar
+    existingUser.bio = updateData.bio || existingUser.bio
+    // Nếu model gốc có name/fullname, vẫn giữ việc gán (an toàn)
+    if (typeof existingUser.name !== "undefined") {
+      existingUser.name = updateData.name || existingUser.name
+    }
+    if (typeof existingUser.fullname !== "undefined") {
+      existingUser.fullname = updateData.fullname || existingUser.fullname
+    }
+
+    await existingUser.save()
+    return existingUser.toObject({ versionKey: false })
   }
 
+  // Xóa user
   deleteUser = async (userId) => {
     return await User.findByIdAndDelete(userId)
   }
 
+  // Lấy tất cả user (admin)
   getAllUsers = async () => {
-    return await User.find().select("-password")
+    return await User.find().select("-password -role")
   }
 
+  // Update avatar
   updateAvatar = async (userId, avatarUrl) => {
-    return await User.findByIdAndUpdate(userId, { avatar: avatarUrl }, { new: true }).select("-password")
+    return await User.findByIdAndUpdate(
+      userId,
+      { avatar: avatarUrl },
+      { new: true }
+    ).select("-password -role")
   }
 
-  searchUsers = async (query) => {
-    return await User.find({
-      username: {
-        $regex: query,
-        $options: 'i'
+  // 🔎 Search user theo username hoặc email (không trả về chính mình)
+  // - query: chuỗi tìm kiếm
+  // - currentUserId: nếu có, sẽ loại id này khỏi kết quả
+  searchUsers = async (query, currentUserId) => {
+    // bảo đảm query an toàn cho regex (escape nếu cần)
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const searchRegex = new RegExp(escaped, "i")
+
+    const andConds = [
+      {
+        $or: [
+          { username: { $regex: searchRegex } },
+          { email: { $regex: searchRegex } }
+        ]
       }
-    }).select("-password").select("-role")
+    ]
+
+    if (currentUserId) {
+      andConds.push({ _id: { $ne: currentUserId } })
+    }
+
+    return await User.find({ $and: andConds }).select("-password -role")
   }
 }
 

@@ -1,4 +1,3 @@
-
 import express from 'express'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
@@ -16,7 +15,7 @@ import cors from "cors"
 
 dotenv.config()
 const app = express()
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 2010
 
 app.use(express.json())
 app.use(cookieParser())
@@ -24,7 +23,7 @@ app.use(cookieParser())
 instanceMongoDB
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
   credentials: true
 }))
 
